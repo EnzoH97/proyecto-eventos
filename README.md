@@ -39,20 +39,6 @@ Sistema backend para la gestión de **eventos de conciertos y recitales**. La pl
 
 ---
 
-## Variables de Entorno
-
-Crea un archivo `.env` en la raíz del proyecto (puedes guiarte con `.env.example`) y configura las siguientes variables[cite: 2]:
-
-```
-.env
-PORT=8080
-NODE_ENV=development
-MONGO_URL=mongodb+srv://usuario:password@cluster.mongodb.net/eventos
-JWT_SECRET=mi_clave_secreta
-```
-
----
-
 ## 🛠️ Instalación y Uso
 
 Si deseas replicar este proyecto en tu entorno local, sigue estas instrucciones:
@@ -72,3 +58,18 @@ npm install
 npm run dev
 ```
 
+---
+
+## Variables de Entorno
+
+Crea un archivo `.env` en la raíz del proyecto (puedes guiarte con `.env.example`) y configura las siguientes variables:
+
+```
+.env
+PORT=8080
+NODE_ENV=development
+MONGO_URL=mongodb+srv://usuario:password@cluster.mongodb.net/eventos
+JWT_SECRET=mi_clave_secreta
+```
+
+---
