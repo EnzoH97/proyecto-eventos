@@ -1,5 +1,4 @@
-**nombre provicional**  
-# La Caja Negra 🎵
+# La Caja Negra 🎵 (**nombre provicional**)
 
 ## Temática
 Sistema backend para la gestión de **eventos de conciertos y recitales**. La plataforma está diseñada para administrar la compra/reserva de entradas, publicación de eventos y gestión de usuarios mediante roles específicos:
