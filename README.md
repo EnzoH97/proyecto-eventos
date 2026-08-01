@@ -11,6 +11,7 @@ Sistema backend para la gestión de **eventos de conciertos y recitales**. La pl
 ## Tecnologías
 * **[Node.js](https://nodejs.org/):** Entorno de ejecución para JavaScript.
 * **[Express.js](https://expressjs.com/):** Framework web para el desarrollo de la API REST.
+* **[dotenv](https://www.npmjs.com/package/dotenv):** Gestión de variables de entorno.
 
 ---
 
@@ -62,14 +63,14 @@ npm run dev
 
 ## Variables de Entorno
 
-Crea un archivo `.env` en la raíz del proyecto (puedes guiarte con `.env.example`) y configura las siguientes variables:
+Crea un archivo `.env` en la raíz del proyecto (puedes guiarte con `.env.example`) y completa los valores de acuerdo con tu entorno local:
 
 ```
 .env
-PORT=8080
-NODE_ENV=development
-MONGO_URL=mongodb+srv://usuario:password@cluster.mongodb.net/eventos
-JWT_SECRET=mi_clave_secreta
+PORT=
+NODE_ENV=
+MONGO_URL=
+JWT_SECRET=
 ```
 
 ---
