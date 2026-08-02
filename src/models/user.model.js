@@ -1,9 +1,39 @@
+import mongoose from "mongoose";
 
-class User {
-    constructor(name, email) {
-        this.name = name;
-        this.email = email;
+const userSchema = new mongoose.Schema({
+
+    first_name: {
+        type: String,
+        required: true
+    },
+
+    last_name: {
+        type: String,
+        required: true
+    },
+
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        lowercase:true,
+        trim:true
+    },
+
+    password: {
+        type: String,
+        required: true
+    },
+
+    role: {
+        type: String,
+        enum: ["user", "organizer", "admin"],
+        default: "user"
     }
-}
 
-export default User;
+});
+
+export default mongoose.model(
+    "User",
+    userSchema
+);
