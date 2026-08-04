@@ -1,4 +1,4 @@
-# La Caja Negra 🎵 (**nombre provicional**)
+# La Caja Negra 🎵 (** nombre provisional**)
 
 ## Temática
 Sistema backend para la gestión de **eventos de conciertos y recitales**. La plataforma está diseñada para administrar la compra/reserva de entradas, publicación de eventos y gestión de usuarios mediante roles específicos:
@@ -12,6 +12,9 @@ Sistema backend para la gestión de **eventos de conciertos y recitales**. La pl
 * **[Node.js](https://nodejs.org/):** Entorno de ejecución para JavaScript.
 * **[Express.js](https://expressjs.com/):** Framework web para el desarrollo de la API REST.
 * **[dotenv](https://www.npmjs.com/package/dotenv):** Gestión de variables de entorno.
+* **[bcrypt]:** Biblioteca utilizada para hashear y verificar contraseñas de forma segura.
+* **[MongoDB]():** Base de datos NoSQL utilizada para el almacenamiento de la información.
+* **[Mongoose]():** Facilita la interacción entre Node.js y MongoDB mediante esquemas y modelos.
 
 ---
 
@@ -74,3 +77,57 @@ JWT_SECRET=
 ```
 
 ---
+## Prueba del endpoint
+
+### Registro de usuarios
+
+Para probar este endpoint, realiza una petición **POST** a la siguiente ruta utilizando **Postman** o cualquier cliente HTTP similar.
+
+**Ruta:**
+
+```http
+POST /api/sessions/register
+```
+
+### Body esperado
+
+El cuerpo de la petición debe tener el siguiente formato:
+
+```json
+{
+  "first_name": "Ana",
+  "last_name": "Pérez",
+  "email": "Ana@Mail.com ",
+  "password": "Secreta123"
+}
+```
+
+### Validaciones
+
+Antes de registrar un usuario, el sistema realiza las siguientes validaciones:
+
+- Todos los campos son obligatorios.
+- El email debe tener un formato válido.
+- El email se normaliza (`trim` + `lowercase`) antes de almacenarse.
+- No se permite registrar un email que ya exista.
+- La contraseña debe cumplir con la longitud mínima establecida de 8 caracteres.
+- El rol del usuario se asigna automáticamente como `user`.
+
+### Respuesta esperada
+
+Si el registro es exitoso, la API responde con un código **201 Created** y un objeto similar al siguiente:
+
+```json
+{
+  "status": "success",
+  "payload": {
+    "id": "...",
+    "first_name": "Ana",
+    "last_name": "Pérez",
+    "email": "ana@mail.com",
+    "role": "user"
+  }
+}
+```
+
+> **Importante:** La contraseña nunca se devuelve en la respuesta y se almacena en la base de datos utilizando **bcrypt**, por lo que no queda guardada en texto plano.
