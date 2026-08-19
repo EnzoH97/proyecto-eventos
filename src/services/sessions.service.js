@@ -1,5 +1,5 @@
 import usersRepository from "../repository/users.repository.js";
-import { createHash } from "../utils/hash.js";
+import { createHash, validatePassword } from "../utils/hash.js";
 
 class SessionsService {
 
@@ -54,6 +54,36 @@ class SessionsService {
             email: user.email,
             role: user.role
         };
+    }
+
+    async login(data){
+
+    const { email, password } = data
+
+    if(!email || !password){
+        throw new Error("faltan credenciales")
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const user = await usersRepository.getByEmail(normalizedEmail)
+
+    if(!user){
+        throw new Error("credenciales invalidas")
+    }
+
+    const validPassword = await validatePassword(password, user.password)
+
+    if(!validPassword){
+        throw new Error("credenciales invalidas")
+    }
+
+    return {
+        id: user._id,
+        email: user.email,
+        role: user.role
+    }
+
     }
 }
 
