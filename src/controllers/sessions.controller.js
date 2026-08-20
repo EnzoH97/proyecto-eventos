@@ -1,4 +1,5 @@
 import sessionsService from "../services/sessions.service.js";
+import { generateJWT } from "../utils/jwt.js";
 
 export const register = async (req, res) => {
     try{
@@ -20,4 +21,44 @@ export const register = async (req, res) => {
             message: error.message
         });
     }
+};
+
+export const login = async(req,res)=>{
+    try{
+        const tokenUser = await sessionsService.login(req.body)
+        const token = generateJWT(tokenUser)
+
+        res.cookie("currentUser",token,{
+            httpOnly: true,
+            maxAge: 60*60*1000,
+            sameSite: "lax",
+            secure: process.env.NODE_ENV === "production"
+        })
+
+        return res.status(200).json({
+            status: "success",
+            message: "login correcto",
+        })
+
+    }catch(error){
+    res.status(500).json({
+        status: "error",
+        message: error.message
+    })
+    }
+};
+
+export const logout = async(req, res)=>{
+    res.clearCookie("currentUser")
+    return res.status(200).json({
+        status: "success",
+        message: "logout correcto"
+    })
+};
+
+export const getCurrentUser = async(req, res)=>{
+    return res.status(200).json({
+        status: "success",
+        payload: req.user
+    })
 };
