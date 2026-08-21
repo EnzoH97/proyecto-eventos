@@ -30,7 +30,7 @@ export const login = async(req,res)=>{
 
         res.cookie("currentUser",token,{
             httpOnly: true,
-            maxAge: 60*60*1000,
+            maxAge: process.env.JWT_EXPIRE_IN,
             sameSite: "lax",
             secure: process.env.NODE_ENV === "production"
         })
@@ -52,7 +52,7 @@ export const logout = async(req, res)=>{
     res.clearCookie("currentUser")
     return res.status(200).json({
         status: "success",
-        message: "logout correcto"
+        message: "La sesión se cerro correctamente"
     })
 };
 
