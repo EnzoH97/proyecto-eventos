@@ -12,9 +12,11 @@ Sistema backend para la gestión de **eventos de conciertos y recitales**. La pl
 * **[Node.js](https://nodejs.org/):** Entorno de ejecución para JavaScript.
 * **[Express.js](https://expressjs.com/):** Framework web para el desarrollo de la API REST.
 * **[dotenv](https://www.npmjs.com/package/dotenv):** Gestión de variables de entorno.
-* **[bcrypt]:** Biblioteca utilizada para hashear y verificar contraseñas de forma segura.
-* **[MongoDB]():** Base de datos NoSQL utilizada para el almacenamiento de la información.
-* **[Mongoose]():** Facilita la interacción entre Node.js y MongoDB mediante esquemas y modelos.
+* **[bcrypt](https://www.npmjs.com/package/bcrypt):** Biblioteca utilizada para hashear y verificar contraseñas de forma segura.
+* **[MongoDB](https://www.mongodb.com/):** Base de datos NoSQL utilizada para el almacenamiento de la información.
+* **[Mongoose](https://mongoosejs.com/):** Facilita la interacción entre Node.js y MongoDB mediante esquemas y modelos.
+* **[jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken):** Generación y verificación de tokens JWT para la autenticación.
+* **[cookie-parser](https://www.npmjs.com/package/cookie-parser):** Middleware para analizar y gestionar las cookies recibidas en las solicitudes.
 
 ---
 
@@ -74,6 +76,7 @@ PORT=
 NODE_ENV=
 MONGO_URL=
 JWT_SECRET=
+JWT_EXPIRE_IN=
 ```
 
 ---
@@ -131,3 +134,114 @@ Si el registro es exitoso, la API responde con un código **201 Created** y un o
 ```
 
 > **Importante:** La contraseña nunca se devuelve en la respuesta y se almacena en la base de datos utilizando **bcrypt**, por lo que no queda guardada en texto plano.
+
+### Login 
+
+Para probar este endpoint, realiza una petición POST a la siguiente ruta utilizando Postman o cualquier cliente HTTP similar.
+
+**Ruta:**
+
+```http
+POST /api/sessions/login
+```
+
+### Body esperado
+
+El cuerpo de la petición debe tener el siguiente formato:
+
+```json
+{
+  "email": "Ana@Mail.com",
+  "password": "Secreta123"
+}
+```
+### Validaciones
+
+Para iniciar sesión, el sistema realiza las siguientes validaciones:
+
+- El email debe coincidir con el utilizado durante el registro
+- La contraseña debe coincidir con la utilizada durante el registro.
+
+### Respuesta esperada
+
+Si el login es exitoso, la API responde con un código **200** y un objeto similar al siguiente:
+
+```json
+{ 
+  "status": "success", 
+  "message": "Login correcto" 
+}
+```
+
+> **Importante:** además, se establece la cookie currentUser con la configuración correspondiente para mantener la sesión.
+
+Si alguno de los dos campos es incorrecto, la API responde con un código **401**:
+
+### Body esperado
+
+```json
+{ 
+  "status": "error", 
+  "message": "Credenciales inválidas" 
+}
+```
+> **Importante:** se debe mostrar un mensaje genérico para evitar brindar información que pueda dar pistas a un posible atacante.
+
+### Current
+
+**Ruta:**
+
+```http
+GET /api/sessions/current
+```
+### Respuesta esperada
+
+Si existe una sesión válida, la API responde con un código **200**:
+
+### Body esperado
+
+El cuerpo de la petición debe tener el siguiente formato:
+
+```json
+{ 
+  "status": "success", 
+  "payload": 
+  { 
+    "id": "665f2a...", 
+    "email": "ana@mail.com", 
+    "role": "user" 
+    } 
+}
+```
+Si la sesión ya expiró o no existe una sesión válida, la API responde con un código **401**:
+
+### Respuesta esperada
+
+```json
+{ 
+  "status": "error", 
+  "message": "No autenticado" 
+}
+```
+
+### Logout
+
+**Ruta:**
+
+```http
+POST /api/sessions/logout
+```
+### Respuesta esperada
+
+Una vez cerrada la sesión la API responde con un codigo **200**
+
+### Respuesta esperada
+
+```json
+{ 
+  "status": "success", 
+  "message": "Sesión cerrada" 
+}
+```
+
+> **Importante:** al cerrar la sesión, la cookie currentUser también se elimina. Por lo tanto, si posteriormente se intenta ejecutar el endpoint /api/sessions/current, este devolverá el error correspondiente al no existir una sesión válida. 
