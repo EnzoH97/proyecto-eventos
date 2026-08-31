@@ -1,64 +1,97 @@
-import sessionsService from "../services/sessions.service.js";
-import { generateJWT } from "../utils/jwt.js";
+import { generateToken } from "../utils/jwt.js";
+import { UserDTO } from "../dto/user.dto.js";
+
+// -----------------------------------------------------
+// REGISTER
+// -----------------------------------------------------
 
 export const register = async (req, res) => {
-    try{
-        const result = await sessionsService.register(req.body);
-        return res.status(201).json({
-            status: "success",
-            payload: result
-        });
-    }catch(error){
-        if(error.message === "EMAIL_EXISTS"){
-            return res.status(409).json({
-                status: "error",
-                message: "El email ya está registrado"
-            });
-        }
-
-        return res.status(400).json({
-            status: "error",
-            message: error.message
-        });
-    }
+    return res.status(201).json({
+        status: "success",
+        message: "Usuario registrado correctamente"
+    });
 };
 
-export const login = async(req,res)=>{
-    try{
-        const tokenUser = await sessionsService.login(req.body)
-        const token = generateJWT(tokenUser)
+// -----------------------------------------------------
+// LOGIN
+// -----------------------------------------------------
 
-        res.cookie("currentUser",token,{
+export const login = async (req, res) => {
+    try {
+        const user = req.user;
+        const token = generateToken(user);
+        res.cookie("currentUser", token, {
             httpOnly: true,
-            maxAge: process.env.JWT_EXPIRE_IN,
+            secure: process.env.NODE_ENV === "production",
             sameSite: "lax",
-            secure: process.env.NODE_ENV === "production"
-        })
-
+            maxAge: 60 * 60 * 1000
+        });
         return res.status(200).json({
             status: "success",
-            message: "login correcto",
-        })
-
-    }catch(error){
-    res.status(500).json({
-        status: "error",
-        message: error.message
-    })
+            message: "Login correcto"
+        });
+    } catch(error){
+        console.error(error);
+        return res.status(500).json({
+            status: "error",
+            message: "Error interno del servidor"
+        });
     }
 };
 
-export const logout = async(req, res)=>{
-    res.clearCookie("currentUser")
+//   GITHUB
+
+export const githubCallback = async(req, res) => {
+    try {
+        const token = generateToken(req.user);
+        res.cookie("currentUser", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax"
+        });
+        return res.json({
+            status: "success",
+            message: "Login con GitHub exitoso"
+        });
+
+    } catch(error){
+        return res.status(500).json({
+            status: "error",
+            message: "Error durante la autenticación"
+        });
+    }
+};
+
+// -----------------------------------------------------
+// LOGOUT
+// -----------------------------------------------------
+
+export const logout = async(req, res) => {
+    res.clearCookie("currentUser");
     return res.status(200).json({
         status: "success",
         message: "La sesión se cerro correctamente"
     })
 };
 
-export const getCurrentUser = async(req, res)=>{
-    return res.status(200).json({
-        status: "success",
-        payload: req.user
-    })
+// -----------------------------------------------------
+// CURRENT
+// -----------------------------------------------------
+
+export const current = async(req, res)=>{
+    try {
+        const user = req.user;
+        const userDTO = new UserDTO(user);
+
+        return res.status(200).json({
+            status: "success",
+            payload: userDTO
+        })
+
+    } catch(error){
+        return res.status(500).json({
+            status: "error",
+            message: "Error interno del servidor"
+        });
+    }
 };
