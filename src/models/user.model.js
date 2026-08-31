@@ -4,12 +4,15 @@ const userSchema = new mongoose.Schema({
 
     first_name: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
 
     last_name: {
         type: String,
-        required: true
+        required: false,
+        trim: true,
+        default: ""
     },
 
     email: {
@@ -22,18 +25,34 @@ const userSchema = new mongoose.Schema({
 
     password: {
         type: String,
-        required: true
+        required: false,
+        default: null
     },
 
     role: {
         type: String,
         enum: ["user", "organizer", "admin"],
         default: "user"
-    }
+    },
 
+    provider:{
+        type: String,
+        enum: ["local", "github"],
+        default: "local"
+    },
+    
+    providerId:{
+        type: String,
+        default: null
+    }
+},
+{
+    timestamps: true
 });
 
-export default mongoose.model(
+const User = mongoose.model(
     "User",
     userSchema
 );
+
+export default User;
