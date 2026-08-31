@@ -77,7 +77,16 @@ NODE_ENV=
 MONGO_URL=
 JWT_SECRET=
 JWT_EXPIRE_IN=
+
+GITHUB_CLIENT_ID= 
+GITHUB_CLIENT_SECRET= 
+GITHUB_CALLBACK_URL=
 ```
+> **⚠️ Aclaración sobre GitHub:** Las variables relacionadas con GitHub OAuth (GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET y GITHUB_CALLBACK_URL) no son obligatorias para el funcionamiento principal del proyecto. 
+
+Se incorporaron como una implementación adicional para realizar pruebas con estrategias de autenticación mediante providers externos y dejar el proyecto preparado para futuras estrategias. 
+
+Si no se desea utilizar la autenticación con GitHub, se puede eliminar la configuración y las variables relacionadas con este provider sin afectar las estrategias principales de registro, login y current.
 
 ---
 ## Prueba del endpoint
@@ -245,3 +254,29 @@ Una vez cerrada la sesión la API responde con un codigo **200**
 ```
 
 > **Importante:** al cerrar la sesión, la cookie currentUser también se elimina. Por lo tanto, si posteriormente se intenta ejecutar el endpoint /api/sessions/current, este devolverá el error correspondiente al no existir una sesión válida. 
+
+---
+
+## Autenticación con Passport.js
+
+La autenticación se encuentra centralizada mediante estrategias de **Passport.js**, sin modificar el contrato externo de las rutas existentes.
+
+### Estrategias implementadas
+
+- **`register`**: recibe los datos del registro y delega la lógica de negocio en `userService.registerUser()`, donde se realizan las validaciones, normalización del email, control de unicidad, hash de contraseña y asignación del rol `user`.
+- **`login`**: valida email y contraseña mediante Passport. Las credenciales inválidas responden con un mensaje genérico.
+- **`current`**: obtiene el JWT desde la cookie `currentUser`, lo valida y deja el usuario autenticado disponible en `req.user`.
+- **`github`**: estrategia de provider externo preparada para autenticación mediante GitHub.
+
+Passport se inicializa en `app.js` mediante `passport.initialize()`, mientras que las estrategias se mantienen centralizadas en `src/config/passport.config.js`. De esta forma, se pueden incorporar futuras estrategias como Google u otros providers sin modificar `app.js`.
+
+### Rutas de autenticación
+
+- `POST /api/sessions/register`
+- `POST /api/sessions/login`
+- `GET /api/sessions/current`
+- `POST /api/sessions/logout`
+- `GET /api/sessions/github`
+- `GET /api/sessions/github/callback`
+
+> **Importante:** El archivo `.env` contiene los valores reales, se tiene que agregarlo a un archivo .gitignore para no subirlo al repositorio. El archivo `.env.example` sirve como referencia para configurar el proyecto.
