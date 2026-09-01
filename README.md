@@ -82,11 +82,12 @@ GITHUB_CLIENT_ID=
 GITHUB_CLIENT_SECRET= 
 GITHUB_CALLBACK_URL=
 ```
-> **⚠️ Aclaración sobre GitHub:** Las variables relacionadas con GitHub OAuth (GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET y GITHUB_CALLBACK_URL) no son obligatorias para el funcionamiento principal del proyecto. 
-
+ 
+> **⚠️ Aclaración sobre GitHub:** 
+Las variables relacionadas con GitHub OAuth (GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET y GITHUB_CALLBACK_URL) no son obligatorias para el funcionamiento principal del proyecto. 
 Se incorporaron como una implementación adicional para realizar pruebas con estrategias de autenticación mediante providers externos y dejar el proyecto preparado para futuras estrategias. 
+ Si no se desea utilizar la autenticación con GitHub, se puede eliminar la configuración y las variables relacionadas con este provider sin afectar las estrategias principales de registro, login y current.
 
-Si no se desea utilizar la autenticación con GitHub, se puede eliminar la configuración y las variables relacionadas con este provider sin afectar las estrategias principales de registro, login y current.
 
 ---
 ## Prueba del endpoint
