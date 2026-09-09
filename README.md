@@ -281,3 +281,107 @@ Passport se inicializa en `app.js` mediante `passport.initialize()`, mientras qu
 - `GET /api/sessions/github/callback`
 
 > **Importante:** El archivo `.env` contiene los valores reales, se tiene que agregarlo a un archivo .gitignore para no subirlo al repositorio. El archivo `.env.example` sirve como referencia para configurar el proyecto.
+
+### Creacion de eventos
+
+Para probar este endpoint, realiza una petición POST a la siguiente ruta utilizando Postman o cualquier cliente HTTP similar.
+
+```http
+POST /api/events
+```
+> **Importante:** Solo el usuario con rol de organizador ("organizer") puede crear un evento.
+
+### Body esperado
+
+El cuerpo de la petición debe tener el siguiente formato:
+
+```json
+{
+  "name": "Concierto Banda x",
+  "date": "2026-10-15T21:00:00-03:00",
+  "capacity": 500
+}
+```
+
+### Respuesta esperada
+
+Una vez creado el evento la API responde con un codigo **201**
+
+```json
+{ 
+  "status": "success", 
+  "payload": { 
+    "id": "6690...", 
+    "name": "Concierto Banda x",
+    "date": "2026-10-15T21:00:00-03:00",
+    "capacity": 500,
+    "organizer": "665f2a..." 
+  } 
+}
+```
+> **Importante:** Esta respuesta solo aparecera si se es organizador.
+
+Si el usuario no esta logeado no podra realizar la acción ya que no va a estar autenticado y la API responde con un código **401**
+
+### Respuesta esperada
+
+```json
+{
+ "status": "error", 
+ "message": "No autenticado" 
+}
+```
+
+Si un usuario con rol "user" intenta crear un evento, la API responde con un error **403** ya que no tienen la autorizacion para realizar dicha acción. 
+
+### Respuesta esperada
+
+```json
+{ 
+  "status": "error", 
+  "message": "No tenés permisos para realizar esta acción" 
+}
+```
+
+### Actualizar eventos
+
+Para probar este endpoint, realiza una petición PUT a la siguiente ruta utilizando Postman o cualquier cliente HTTP similar.
+
+```http
+PUT /api/events/{idEvento}
+```
+> **Importante:** Los organizadores pueden modificar los eventos de su propiedad
+
+### Body esperado
+
+El cuerpo de la petición debe tener el mismo formato que en la creacion pero con las modificaciones deseadas:
+
+### Body esperado
+
+El cuerpo de la petición debe tener el siguiente formato:
+
+```json
+{
+  "name": "Concierto Banda y",
+  "date": "2026-11-15T21:23:00-03:00",
+  "capacity": 1500
+}
+```
+
+### Respuesta esperada
+
+Una vez actualizado el evento la API responde con un codigo **200**
+
+```json
+{ 
+  "status": "success", 
+  "payload": { 
+    "id": "6690...", 
+    "name": "Concierto Banda y",
+    "date": "2026-11-15T21:23:00-03:00",
+    "capacity": 1500,
+    "organizer": "665f2a..." 
+  } 
+}
+```
+Si un organizador intenta modificar un evento que no es de su propiedad, la API responde con un error **403** ya que no tienen la autorizacion para realizar dicha acción. 
