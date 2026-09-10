@@ -1,88 +1,71 @@
-import userDAO from "../dao/user.dao.js";
-import { createHash } from "../utils/hash.js";
+import { UserRepository } from "../repository/users.repository.js";
+import { createHash, isValidPassword } from "../utils/hash.js";
+import { generateToken } from "../utils/jwt.js"
 
-class UserService {
-
-// -----------------------------------------------------
-// REGISTER LOCAL
-// -----------------------------------------------------
-
-async registerUser({
-    first_name,
-    last_name,
-    email,
-    password
-    }) {
-
-    const normalizedEmail = email.trim().toLowerCase();
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!emailRegex.test(normalizedEmail)){
-        throw new Error("El Email es inválido");
+export class UserService {
+    constructor() {
+        this.userRepository = new UserRepository();
     }
 
-    if (password.length < 8){
-        throw new Error("La password es inválida");
-    }
-    
-    const existingUser = await userDAO.getUserByEmail(normalizedEmail);
+    async register(data) {
+        const email = data.email?.trim().toLowerCase();
 
-    if (existingUser) {
-    const error = new Error(
-    "El email ya está registrado"
-    );
-    error.code = "EMAIL_EXISTS";
-    throw error;
-    }
+        if (!data.first_name || !data.last_name || !email || !data.password) {
+        throw Object.assign(
+            new Error("first_name, last_name, email y password son obligatorios"),
+            { status: 400 }
+        );
+        }
 
-    const hashedPassword = await createHash(password);
-    const newUser = await userDAO.createUser({
-        first_name,
-        last_name,
-        email: normalizedEmail,
-        password: hashedPassword,
-        role: "user",
-        provider: "local",
-        providerId: null
+        if (data.password.length < 8) {
+        throw Object.assign(
+            new Error("La contraseña debe tener al menos 8 caracteres"),
+            { status: 400 }
+        );
+        }
+
+        const existingUser = await this.userRepository.findByEmail(email);
+
+        if (existingUser) {
+        throw Object.assign(
+            new Error("El email ya está registrado"),
+            { status: 409 }
+        );
+        }
+
+        const password = await createHash(data.password);
+
+        return this.userRepository.create({
+        first_name: data.first_name,
+        last_name: data.last_name,
+        email,
+        password,
+        role: data.role || "user"
         });
-
-    return newUser;
     }
 
-// -----------------------------------------------------
-// REGISTER GITHUB
-// -----------------------------------------------------
+    async login(email, password) {
+        const normalizedEmail = email?.trim().toLowerCase();
 
-async registerGithubUser({
-    first_name,
-    last_name,
-    email,
-    providerId
-    }) {
-    const normalizedEmail = email.trim().toLowerCase();
+        const user = await this.userRepository.findByEmail(normalizedEmail);
 
-    // Buscar usuario existente
+        if (!user) {
+        throw Object.assign(new Error("Credenciales inválidas"), { status: 401 });
+        }
 
-    let user = await userDAO.getUserByEmail(normalizedEmail);
+        const validPassword = await isValidPassword(password, user.password);
 
-    // Si ya existe, lo devolvemos
-    if (user) {
-    return user;
-    }
+        if (!validPassword) {
+        throw Object.assign(new Error("Credenciales inválidas"), { status: 401 });
+        }
 
-
-    // Si no existe, creamos usuario GitHub
-    user = await userDAO.createUser({
-        first_name,
-        last_name,
-        email: normalizedEmail,
-        password: null,
-        role: "user",
-        provider: "github",
-        providerId
-        });
-    return user;
+        return {
+        user: {
+            id: user._id,
+            email: user.email,
+            role: user.role
+        },
+        token: generateToken(user)
+        };
     }
 }
-
-export default new UserService();
