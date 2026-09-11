@@ -1,6 +1,6 @@
 import { UserDAO } from "../dao/user.dao.js";
 
-class UserRepository{
+export class UserRepository{
     constructor() {
         this.dao = new UserDAO();
     }
@@ -13,5 +13,3 @@ class UserRepository{
         return this.dao.create(data);
     }
 }
-
-export default new UserRepository();

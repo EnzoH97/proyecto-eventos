@@ -1,6 +1,6 @@
 import User from "../models/user.model.js";
 
-class UsersDAO{
+export class UserDAO{
     async findByEmail(email) {
         return User.findOne({ email });
     }
@@ -9,5 +9,3 @@ class UsersDAO{
         return User.create(data);
     }
 }
-
-export default new UsersDAO();
