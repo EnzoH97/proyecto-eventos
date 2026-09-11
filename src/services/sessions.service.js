@@ -40,7 +40,6 @@ export class UserService {
         last_name: data.last_name,
         email,
         password,
-        role: data.role || "user"
         });
     }
 

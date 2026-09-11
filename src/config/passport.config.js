@@ -17,7 +17,7 @@ async (jwtPayload, done) => {
         const user = await User.findById(jwtPayload.id).select("-password");
 
         if(!user){
-            return done(null, fale);
+            return done(null, false);
         }
 
         return done(null, user);
