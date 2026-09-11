@@ -1,21 +1,29 @@
-import eventRepository from "../repository/event.repository.js";
+import Event from "../models/event.model.js";
 
-class EventDAO {
-    async createEvent(eventData) {
-        return await eventRepository.create(eventData);
+export class EventDAO {
+    async create(data) {
+        return Event.create(data);
     }
 
-    async getEventById(id) {
-        return await eventRepository.findById(id);
+    async findById(id) {
+        return Event.findById(id).populate("organizer", "first_name last_name email role");
     }
 
-    async getEvents() {
-        return await eventRepository.findAll();
+    async updateById(id, data) {
+        return Event.findByIdAndUpdate(id, data,{
+            new: true,
+            runValidators: true
+        }).populate("organizer", "first_name last_name email role");
     }
 
-    async updateEvent(id, eventData) {
-        return await eventRepository.updateById(id, eventData);
+    async findAll(filter, { skip, limit, sort }) {
+        return Event.find(filter).populate("organizer", "first_name last_name email role")
+        .sort(sort)
+        .skip(skip)
+        .limit(limit);
+    }
+
+    async count(filter) {
+        return Event.countDocuments(filter);
     }
 }
-
-export default new EventDAO();
