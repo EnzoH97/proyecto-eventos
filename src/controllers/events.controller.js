@@ -1,23 +1,19 @@
-import eventService from "../services/event.service.js";
+import { EventService } from "../services/event.service.js";
+
+const eventService = new EventService();
 
 
 // -----------------------------------------------------
 // CREAR EVENTO
 // -----------------------------------------------------
-
-
-export const createEventController = async (req, res, next) => {
+export const createEvent = async (req, res, next) => {
     try {
-        const { name, date, capacity, organizer } = req.body;
-        const owner = req.user ? req.user._id : organizer;
-        const newEvent = await eventService.createEvent({
-            name,
-            date,
-            capacity
-        }, owner);
-        return res.status(201).json({
-            status: "success",
-            payload: newEvent
+        const event = await eventService.createEvent(req.body, req.user);
+
+        res.status(201).json({
+        status: "success",
+        message: "Evento creado",
+        data: event
         });
     } catch (error) {
         next(error);
@@ -27,13 +23,13 @@ export const createEventController = async (req, res, next) => {
 // -----------------------------------------------------
 // READ ALL
 // -----------------------------------------------------
-
-export const getEventsController = async (req, res, next) => {
+export const getEvents = async (req, res, next) => {
     try {
-        const events = await eventService.getEvents();
-        return res.status(200).json({
-            status: "success",
-            payload: events
+        const result = await eventService.getEvents(req.query);
+
+        res.json({
+        status: "success",
+        ...result
         });
     } catch (error) {
         next(error);
@@ -43,14 +39,13 @@ export const getEventsController = async (req, res, next) => {
 // -----------------------------------------------------
 // READ ONE
 // -----------------------------------------------------
-
-export const getEventByIdController = async (req, res, next) => {
+export const getEventById = async (req, res, next) => {
     try {
-        const { eventId } = req.params;
-        const event = await eventService.getEventById(eventId);
-        return res.status(200).json({
-            status: "success",
-            payload: event
+        const event = await eventService.getEventById(req.params.id);
+
+        res.json({
+        status: "success",
+        data: event
         });
     } catch (error) {
         next(error);
@@ -58,16 +53,50 @@ export const getEventByIdController = async (req, res, next) => {
 };
 
 // -----------------------------------------------------
-// UPDATE
+// ACTUALIZAR EVENTO
 // -----------------------------------------------------
-
-export const updateEventController = async (req, res, next) => {
+export const updateEvent = async (req, res, next) => {
     try {
-        const { eventId } = req.params;
-        const event = await eventService.updateEvent(eventId, req.body);
-        return res.status(200).json({
-            status: "success",
-            payload: event
+        const event = await eventService.updateEvent(
+        req.params.id,
+        req.body,
+        req.user
+        );
+
+        res.json({
+        status: "success",
+        message: "Evento actualizado",
+        data: event
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// -----------------------------------------------------
+// ACTUALIZAR ESTADO DE UN EVENTO
+// -----------------------------------------------------
+export const changeEventStatus = async (req, res, next) => {
+    try {
+        const { status } = req.body;
+
+        if (!status) {
+        return res.status(400).json({
+            status: "error",
+            message: "El campo status es obligatorio"
+        });
+        }
+
+        const event = await eventService.changeStatus(
+        req.params.id,
+        status,
+        req.user
+        );
+
+        res.json({
+        status: "success",
+        message: "Estado del evento actualizado",
+        data: event
         });
     } catch (error) {
         next(error);
