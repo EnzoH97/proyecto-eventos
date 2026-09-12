@@ -1,41 +1,26 @@
 import { Router } from "express";
+import { createEvent, getEvents, getEventById, updateEvent, changeEventStatus} from "../controllers/events.controller.js";
+import { authenticateJWT } from "../middlewares/auth.middleware.js";
 import { authorizeRoles } from "../middlewares/authorizeRole.js";
-import { authorizeEventOwnerOrAdmin } from "../middlewares/authorizeEventOwnerOrAdmin.js"
-import { authenticationMiddleware } from "../middlewares/autheticationMiddleware.js";
-import {createEventController, getEventsController, getEventByIdController, updateEventController} from "../controllers/events.controller.js";
 
 const router = Router();
 
 
 // -----------------------------------------------------
-// Crear un evento
+// Ver eventos (Público)
 // -----------------------------------------------------
-router.post("/", authenticationMiddleware, authorizeRoles(
-    [
-        "organizer", 
-        "admin"
-    ]), createEventController);
+router.get("/", getEvents);
+router.get("/:id", getEventById);
 
 // -----------------------------------------------------
-// Listar eventos
+// Crear un evento (Organizer o admin) 
 // -----------------------------------------------------
-
-router.get("/", getEventsController);
-
-// -----------------------------------------------------
-// Ver detalle de un evento
-// -----------------------------------------------------
-
-router.get("/:eventId", authenticationMiddleware, getEventByIdController);
+router.post("/",authenticateJWT,authorizeRoles("organizer", "admin"),createEvent);
 
 // -----------------------------------------------------
-// Editar un evento
+// Editar un evento (Dueño o admin)
 // -----------------------------------------------------
-
-router.put("/:eventId", authenticationMiddleware, authorizeRoles(
-    [
-        "organizer", 
-        "admin"
-    ]), authorizeEventOwnerOrAdmin, updateEventController);
+router.put("/:id",authenticateJWT,authorizeRoles("organizer", "admin"),updateEvent);
+router.patch("/:id/status",authenticateJWT,authorizeRoles("organizer", "admin"),changeEventStatus);
 
 export default router;
