@@ -1,30 +1,167 @@
 import passport from "passport";
-import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
-import User from "../models/user.model.js";
+import {  Strategy as GitHubStrategy } from "passport-github2";
+import {Strategy as LocalStrategy} from "passport-local";
+import {Strategy as JwtStrategy, ExtractJwt} from "passport-jwt";
 
-const jwtSecret = process.env.JWT_SECRET;
+import userDAO from "../dao/user.dao.js";
+import UserService from "../services/sessions.service.js";
+import {isValidPassword} from "../utils/hash.js";
 
-if (!jwtSecret) {
-    throw new Error("Falta JWT_SECRET en el archivo .env");
-}
 
-passport.use("jwt", new JwtStrategy({
-    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-    secretOrKey: jwtSecret
+// ======================================================
+// REGISTER
+// ======================================================
+
+passport.use("register", new LocalStrategy({
+    usernameField: "email",
+    passwordField: "password",
+    passReqToCallback: true
 },
-async (jwtPayload, done) => {
-    try {
-        const user = await User.findById(jwtPayload.id).select("-password");
+    async (req, email, password, done) => {
+        try {
+            const {first_name, last_name} = req.body;
 
-        if(!user){
+        // Validaciones
+        if (
+            !first_name ||
+            !last_name ||
+            !email ||
+            !password
+        ) {
+            return done(null, false,
+                {
+                    message: "Todos los campos son obligatorios"
+                });
+            }
+        // Crear usuario mediante Service
+        const newUser = await UserService.registerUser({
+            first_name,
+            last_name,
+            email,
+            password
+        });
+        return done(null, newUser);
+    } catch (error) {
+        if (error.code === "EMAIL_EXISTS") {
+            
+            return done(null, false,
+                {
+                    message: "El email ya está registrado"
+                });
+            }
+            return done(error);
+        }
+    })
+);
+
+
+// ======================================================
+// LOGIN
+// ======================================================
+
+passport.use("login", new LocalStrategy(
+    {
+        usernameField: "email",
+        passwordField: "password"
+    },
+    
+    async (email, password, done) => {
+        try {
+            const normalizedEmail = email.trim().toLowerCase();
+            const user = await userDAO.getUserByEmail(normalizedEmail);
+            if (!user) {
+                return done(null, false,
+                    {
+                        message: "Credenciales inválidas"
+                    });
+                }
+                const validPassword = await isValidPassword(password, user.password);
+                
+                if (!validPassword) {
+                    return done(null, false,
+                        {
+                            message: "Credenciales inválidas"
+                        });
+                    }
+                    return done(null, user);
+                } catch (error) {
+                    return done(error);
+                }
+}));
+
+// ======================================================
+// GITHUB
+// ======================================================
+
+passport.use("github", new GitHubStrategy({
+    clientID: process.env.GITHUB_CLIENT_ID,
+    clientSecret: process.env.GITHUB_CLIENT_SECRET,
+    callbackURL: process.env.GITHUB_CALLBACK_URL
+},
+async (
+    accessToken,
+    refreshToken,
+    profile,
+    done) => {
+        try {
+            console.log("GitHub profile:", profile);
+            
+            // Obtener email
+            const email = profile.emails?.[0]?.value;
+            if (!email) {
+                return done(null, false, {
+                    message: "GitHub no proporcionó un email"
+                });
+            }
+            
+            // Obtener nombre
+            const first_name = profile.name?.givenName || profile.displayName || "Usuario";
+            const last_name = profile.name?.familyName || "";
+            
+            // Buscar / crear usuario
+            const user = await userService.registerGithubUser({
+                first_name,
+                last_name,
+                email,
+                providerId:
+                profile.id
+            });
+            return done(null, user);
+        } catch (error) {
+            console.error("Error GitHub:", error);
+            return done(error);
+        }
+}));
+
+// ======================================================
+// COOKIE EXTRACTOR
+// ======================================================
+
+const cookieExtractor = (req) => {
+    if (req && req.cookies && req.cookies.currentUser) {
+        return req.cookies.currentUser;
+    }
+    return null;
+};
+
+// ======================================================
+// CURRENT
+// ======================================================
+
+passport.use("current", new JwtStrategy({
+    jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
+    secretOrKey: process.env.JWT_SECRET
+},
+async (payload, done) => {
+    try {
+        const user = await userDAO.getUserById(payload.id);
+        if (!user) {
             return done(null, false);
         }
-
-        return done(null, user);
-
-    } catch(error){
-        return done(error, false);
+        return done(null,user);
+    } catch (error) {
+        return done(error);
     }
-}
-));
+}));
+
 export default passport;
