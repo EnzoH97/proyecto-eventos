@@ -24,4 +24,12 @@ export class EventRepository {
     count(filter) {
         return this.dao.count(filter);
     }
+
+    reserveSeats(eventId, seats){
+        return this.dao.reserveSeats(eventId, seats)
+    }
+
+    releaseSeats(eventId, seats){
+        return this.dao.releaseSeats(eventId, seats)
+    }
 }

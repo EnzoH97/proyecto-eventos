@@ -77,6 +77,12 @@ NODE_ENV=
 MONGO_URL=
 JWT_SECRET=
 JWT_EXPIRE_IN=
+
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USER=tu email
+MAIL_PASS= (debes generar una contraseña usando el siguiente link)#http://myaccount.google.com/apppasswords
+MAIL_FROM=TICKETS
 ```
 ---
 ## Prueba del endpoint
@@ -374,3 +380,214 @@ Una vez actualizado el evento la API responde con un codigo **200**
 }
 ```
 Si un organizador intenta modificar un evento que no es de su propiedad, la API responde con un error **403** ya que no tienen la autorizacion para realizar dicha acción. 
+
+---
+
+## Tickets
+
+### Inscripción a un evento
+
+Para probar este endpoint, realiza una petición POST a la siguiente ruta utilizando Postman o cualquier cliente HTTP similar.
+
+```http
+POST /api/tickets/event/:eid/tickets
+```
+> **Importante:** el usuario debe estar autenticado para poder inscribirse a un evento.
+
+### Body esperado
+
+El cuerpo de la petición debe tener el siguiente formato:
+
+```json
+{
+  "quantity": 2
+}
+```
+
+### Validaciones
+
+Antes de crear el ticket, el sistema realiza las siguientes validaciones:
+
+- El evento indicado en `eid` debe existir.
+- El evento debe encontrarse en estado `published` (no `draft`, `cancelled` ni `finished`).
+- La fecha del evento no debe haber pasado.
+- El usuario no debe tener ya un ticket `confirmed` para ese mismo evento.
+- Debe existir cupo suficiente disponible (`capacity - reserved >= quantity`).
+
+### Respuesta esperada
+
+Una vez creada la inscripción la API responde con un codigo **201**
+
+```json
+{ 
+  "status": "success", 
+  "message": "Inscripción realizada con éxito", 
+  "data": { 
+    "id": "6690...", 
+    "event": "6680...",
+    "quantity": 2,
+    "status": "confirmed",
+    "reservationCode": "ABC123"
+  } 
+}
+```
+> **Importante:** al confirmarse la inscripción se envía automáticamente un email al usuario con el código de reserva, el nombre del evento, la fecha/ubicación y la cantidad de lugares reservados.
+
+Si el usuario no esta logeado no podra realizar la acción ya que no va a estar autenticado y la API responde con un código **401**
+
+### Respuesta esperada
+
+```json
+{
+ "status": "error", 
+ "message": "No autenticado" 
+}
+```
+
+Si el evento indicado no existe, la API responde con un código **404**
+
+### Respuesta esperada
+
+```json
+{
+ "status": "error", 
+ "message": "Evento no encontrado" 
+}
+```
+
+Si el evento no está `published` (está cancelado, finalizado o aún en borrador) o ya pasó su fecha, la API responde con un código **400** ya que se trata de un error de negocio.
+
+### Respuesta esperada
+
+```json
+{
+ "status": "error", 
+ "message": "El evento no esta disponible para anotarse" 
+}
+```
+
+Si no hay cupo suficiente para la cantidad solicitada, la API responde con un código **400** con un mensaje claro.
+
+### Respuesta esperada
+
+```json
+{
+ "status": "error", 
+ "message": "No hay cupos disponibles" 
+}
+```
+
+Si el usuario ya cuenta con una inscripción activa para ese evento, la API responde con un código **409** ya que no se permiten inscripciones duplicadas.
+
+### Respuesta esperada
+
+```json
+{
+ "status": "error", 
+ "message": "El ususario ya se encuentra anotado en el evento" 
+}
+```
+
+### Mis tickets
+
+Para probar este endpoint, realiza una petición GET a la siguiente ruta utilizando Postman o cualquier cliente HTTP similar.
+
+```http
+GET /api/tickets/my-tickets
+```
+
+### Respuesta esperada
+
+Devuelve, con un código **200**, el listado de los tickets propios del usuario autenticado.
+
+```json
+{ 
+  "status": "success", 
+  "message": "Listado de ticket obtenida correctamente", 
+  "data": [ 
+    { 
+      "id": "6690...", 
+      "event": "6680...", 
+      "quantity": 2, 
+      "status": "confirmed", 
+      "reservationCode": "ABC123" 
+    } 
+  ] 
+}
+```
+
+### Tickets de un evento
+
+Para probar este endpoint, realiza una petición GET a la siguiente ruta utilizando Postman o cualquier cliente HTTP similar.
+
+```http
+GET /api/events/:eid/tickets
+```
+> **Importante:** Solo el organizador dueño del evento o un usuario con rol `admin` pueden listar los tickets del evento.
+
+### Respuesta esperada
+
+Una vez obtenido el listado la API responde con un codigo **200**
+
+```json
+{ 
+  "status": "success", 
+  "message": "Listado de ticket obtenida correctamente", 
+  "data": [ ] 
+}
+```
+
+Si un usuario con rol `user` intenta acceder a este endpoint, la API responde con un error **403** ya que no tienen la autorizacion para realizar dicha acción. 
+
+### Respuesta esperada
+
+```json
+{ 
+  "status": "error", 
+  "message": "No tenés permisos para realizar esta acción" 
+}
+```
+
+Si un organizador intenta listar los tickets de un evento que no es de su propiedad, la API responde con un error **403** de la misma manera.
+
+### Cancelación de un ticket
+
+Para probar este endpoint, realiza una petición PATCH a la siguiente ruta utilizando Postman o cualquier cliente HTTP similar.
+
+```http
+PATCH /api/tickets/:tid/cancel
+```
+> **Importante:** solo puede cancelar el ticket su dueño o un usuario con rol `admin`.
+
+### Validaciones
+
+- El ticket indicado en `tid` debe existir.
+- El ticket no debe estar cancelado previamente.
+
+### Respuesta esperada
+
+Una vez cancelado el ticket la API responde con un codigo **200**
+
+```json
+{ 
+  "status": "success", 
+  "message": "Ticket cancelado correctamente", 
+  "data": { 
+    "id": "6690...", 
+    "status": "cancelled",
+    "cancelledAt": "2026-09-19T15:00:00.000Z"
+  } 
+}
+```
+> **Importante:** al cancelar el ticket, el cupo ocupado se libera en el evento y se envía un email de notificación de cancelación al usuario.
+
+Si un usuario intenta cancelar un ticket que no le pertenece y no es `admin`, la API responde con un error **403** ya que no tienen la autorizacion para realizar dicha acción. 
+
+### Respuesta esperada
+
+```json
+{ 
+  "status": "error", 
+  "message": "no tenes permisos para cancelar este ticket" 
+}
+```

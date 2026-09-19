@@ -26,4 +26,26 @@ export class EventDAO {
     async count(filter) {
         return Event.countDocuments(filter);
     }
+
+    async reserveSeats(eventId, seats){
+        return Event.findOneAndUpdate({
+            _id: eventId,
+            status: "published",
+            date: { $gt: new Date()},
+            $expr:{
+                $lte: [{ $add: ["$reserved", seats]}, "$capacity"]
+            },
+        },
+        { $inc :{reserved: seats}},
+        { new:true }
+    )
+    }
+    
+    async releaseSeats(evenId, seats){
+        return Event.findOneAndUpdate(
+            {_id: evenId, reserved:{$gte:seats}},
+            {$inc:{reserved: -seats}},
+            {new: true}
+        )
+    }
 }
