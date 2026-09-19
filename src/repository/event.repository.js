@@ -1,35 +1,26 @@
-import { EventDAO } from "../dao/event.dao.js";
+import Event from "../models/event.model.js";
 
-export class EventRepository {
-    constructor() {
-        this.dao = new EventDAO();
+class EventRepository {
+
+    async create(eventData) {
+        return await Event.create(eventData);
     }
 
-    create(data) {
-        return this.dao.create(data);
+    async findById(id) {
+        return await Event.findById(id);
     }
 
-    findById(id) {
-        return this.dao.findById(id);
+    async findAll() {
+        return await Event.find();
     }
 
-    updateById(id, data) {
-        return this.dao.updateById(id, data);
+    async updateById(id, eventData) {
+        return await Event.findByIdAndUpdate(id, eventData, {
+        new: true,
+        runValidators: true
+        });
     }
 
-    findAll(filter, pagination) {
-        return this.dao.findAll(filter, pagination);
-    }
-
-    count(filter) {
-        return this.dao.count(filter);
-    }
-
-    reserveSeats(eventId, seats){
-        return this.dao.reserveSeats(eventId, seats)
-    }
-
-    releaseSeats(eventId, seats){
-        return this.dao.releaseSeats(eventId, seats)
-    }
 }
+
+export default new EventRepository();

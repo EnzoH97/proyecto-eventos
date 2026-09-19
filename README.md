@@ -78,12 +78,25 @@ MONGO_URL=
 JWT_SECRET=
 JWT_EXPIRE_IN=
 
+<<<<<<< HEAD
 MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
 MAIL_USER=tu email
 MAIL_PASS= (debes generar una contraseña usando el siguiente link)#http://myaccount.google.com/apppasswords
 MAIL_FROM=TICKETS
+=======
+GITHUB_CLIENT_ID= 
+GITHUB_CLIENT_SECRET= 
+GITHUB_CALLBACK_URL=
+>>>>>>> 47b4ca76d83025252d2bbb55a79dd7da0f940671
 ```
+ 
+> **⚠️ Aclaración sobre GitHub:** 
+Las variables relacionadas con GitHub OAuth (GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET y GITHUB_CALLBACK_URL) no son obligatorias para el funcionamiento principal del proyecto. 
+Se incorporaron como una implementación adicional para realizar pruebas con estrategias de autenticación mediante providers externos y dejar el proyecto preparado para futuras estrategias. 
+ Si no se desea utilizar la autenticación con GitHub, se puede eliminar la configuración y las variables relacionadas con este provider sin afectar las estrategias principales de registro, login y current.
+
+
 ---
 ## Prueba del endpoint
 
