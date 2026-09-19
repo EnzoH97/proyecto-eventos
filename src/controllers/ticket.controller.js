@@ -1,4 +1,4 @@
-import { TicketService } from "../services/ticket.service.j";
+import { TicketService } from "../services/ticket.service.js";
 
 const ticketService = new TicketService()
 

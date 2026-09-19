@@ -1,7 +1,7 @@
 import { Router } from "express"
 
 import { authenticateJWT } from "../middlewares/auth.middleware.js"
-import { authorizeRoles } from "../middlewares/authorizeRole.js";
+import { authorizeRoles } from "../middlewares/authorization.middleware.js";
 import {enroll, getTicketsFromUser, getTicketsByEvent, cancelTicket} from "../controllers/ticket.controller.js"
 
 const router = Router();

@@ -1,37 +1,21 @@
 import { Router } from "express";
-import { authorizeRoles } from "../middlewares/authorizeRole.js";
-import { authorizeEventOwnerOrAdmin } from "../middlewares/authorizeEventOwnerOrAdmin.js"
-import { authenticationMiddleware } from "../middlewares/autheticationMiddleware.js";
-import {createEventController, getEventsController, getEventByIdController, updateEventController} from "../controllers/events.controller.js";
+
+import {createEvent, getEvents, getEventById, updateEvent, changeEventStatus} from "../controllers/events.controller.js";
+import { authenticateJWT } from "../middlewares/auth.middleware.js";
+import { authorizeRoles } from "../middlewares/authorization.middleware.js";
 
 const router = Router();
 
 
-// -----------------------------------------------------
-// Crear un evento
-// -----------------------------------------------------
-router.post("/", authenticationMiddleware, authorizeRoles(["organizer", "admin"]), createEventController);
+router.get("/", getEvents);
+router.get("/:id", getEventById);
 
-// -----------------------------------------------------
-// Listar eventos
-// -----------------------------------------------------
 
-router.get("/", getEventsController);
+router.post("/", authenticateJWT, authorizeRoles("organizer", "admin"), createEvent);
 
-// -----------------------------------------------------
-// Ver detalle de un evento
-// -----------------------------------------------------
 
-router.get("/:eventId", authenticationMiddleware, getEventByIdController);
+router.put("/:id", authenticateJWT, authorizeRoles("organizer", "admin"), updateEvent);
 
-// -----------------------------------------------------
-// Editar un evento
-// -----------------------------------------------------
-
-router.put("/:eventId", authenticationMiddleware, authorizeRoles(
-    [
-        "organizer", 
-        "admin"
-    ]), authorizeEventOwnerOrAdmin, updateEventController);
+router.patch("/:id/status", authenticateJWT, authorizeRoles("organizer", "admin"), changeEventStatus);
 
 export default router;
