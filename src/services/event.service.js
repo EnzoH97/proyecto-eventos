@@ -160,9 +160,7 @@ export class EventService {
         if (isAdmin) return;
         
         
-        const isOwner = event.organizer?._id
-        ? event.organizer._id.toString() === user._id.toString()
-        : event.organizer.toString() === user._id.toString();
+        const isOwner = event.organizer?._id ? event.organizer._id.toString() === user._id.toString() : event.organizer.toString() === user._id.toString();
         
         if (!isOwner) {
             throw businessError("No tenés permisos para modificar este evento", 403);
