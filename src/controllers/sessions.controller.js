@@ -1,4 +1,5 @@
 import { AuthService } from "../services/sessions.service.js";
+import { UserDTO } from "../dto/user.dto.js";
 
 const authService = new AuthService();
 
@@ -9,13 +10,7 @@ export const register = async (req, res, next) => {
         res.status(201).json({
         status: "success",
         message: "Usuario registrado",
-        data: {
-            id: user._id,
-            first_name: user.first_name,
-            last_name: user.last_name,
-            email: user.email,
-            role: user.role
-        }
+        data: new UserDTO(user)
         });
     } catch (error) {
         next(error);

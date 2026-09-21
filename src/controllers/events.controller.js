@@ -1,4 +1,5 @@
 import { EventService } from "../services/event.service.js";
+import { EventDTO } from "../dto/event.dto.js"
 
 const eventService = new EventService();
 
@@ -8,7 +9,7 @@ export const createEvent = async (req, res, next) => {
         res.status(201).json({
             status: "success",
             message: "Evento creado",
-            data: event
+            data: new EventDTO(event)
         });
     } catch (error) {
         next(error);

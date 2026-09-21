@@ -1,4 +1,5 @@
 import { TicketService } from "../services/ticket.service.js";
+import { TicketDTO } from "../dto/ticket.dto.js";
 
 const ticketService = new TicketService()
 
@@ -12,13 +13,7 @@ export const enroll = async (req, res, next)=>{
         res.status(201).json({
             status: "success",
             massage: "Incripcion realizada con exito",
-            data: {
-                id: ticket._id,
-                event: ticket.event,
-                quantity: ticket.quantity,
-                status: ticket.status,
-                reservationCode: ticket.reservationCode
-            }
+            data: new TicketDTO(ticket)
         })
     }catch(error){
         next(error)
