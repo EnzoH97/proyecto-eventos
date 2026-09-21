@@ -40,7 +40,7 @@ export class AuthService {
         last_name: data.last_name,
         email,
         password,
-        role: data.role || "user"
+        role: "user"
         });
     }
 
