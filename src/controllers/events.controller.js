@@ -22,6 +22,7 @@ export const getEvents = async (req, res, next) => {
         res.json({
             status: "success",
             ...result
+            data: result.data.map((event) => new EventDTO(event))
         });
     } catch (error) {
         next(error);

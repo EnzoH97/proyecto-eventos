@@ -26,7 +26,7 @@ export class TicketRepository {
     }
     
     save(ticket){
-        return ticket.save(ticket)
+        return this.dao.save(ticket)
     }
     
     sumReservedByEvent(eventId){
