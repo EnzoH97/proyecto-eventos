@@ -99,7 +99,7 @@ export class TicketService {
             throw businessError("no tenes permisos para cancelar este ticket", 403);
         }
 
-        if(ticketId.status === "cancelled"){
+        if(existantTicket.status === "cancelled"){
             throw businessError("Ticket ya cancelado", 409);
         }
 
