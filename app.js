@@ -5,7 +5,7 @@ import eventsRouter from "./src/routes/events.router.js";
 import sessionsRouter from "./src/routes/sessions.router.js";
 import ticketRouter from "./src/routes/tickets.router.js";
 
-
+import { errorHandler } from "./src/middlewares/error.middleware.js";
 
 const app = express();
 
@@ -14,7 +14,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(passport.initialize());
 
-
 app.get("/api/health", (req, res) => {
     res.json({
         status: "ok",
@@ -22,10 +21,18 @@ app.get("/api/health", (req, res) => {
     });
 });
 
-
 app.use("/api/events", eventsRouter);
 app.use("/api/sessions", sessionsRouter);
 app.use("/api/tickets", ticketRouter);
 
+app.use((req, res) => {
+    res.status(404).json({
+        status: "error",
+        message: `Ruta no encontrada: ${req.method} ${req.originalUrl}`
+    });
+});
+
+app.use(errorHandler);
 
 export default app;
+
