@@ -17,7 +17,7 @@ export const register = async (req, res, next) => {
     }
     };
 
-    export const login = async (req, res, next) => {
+export const login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
@@ -34,6 +34,28 @@ export const register = async (req, res, next) => {
         status: "success",
         message: "Login exitoso",
         ...result
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const current = async (req, res, next) => {
+    try {
+        res.json({
+            status: "success",
+            data: new UserDTO(req.user)
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const logout = async (req, res, next) => {
+    try {
+        res.json({
+            status: "success",
+            message: "Sesión cerrada"
         });
     } catch (error) {
         next(error);

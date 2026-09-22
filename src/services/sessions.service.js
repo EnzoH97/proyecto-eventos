@@ -1,6 +1,7 @@
 import { UserRepository } from "../repository/users.repository.js";
 import { isValidPassword, createHash } from "../utils/hash.js";
 import { generateToken } from "../utils/jwt.js";
+import { UserDTO } from "../dto/user.dto.js";
 
 export class AuthService {
     constructor() {
@@ -60,11 +61,7 @@ export class AuthService {
         }
 
         return {
-        user: {
-            id: user._id,
-            email: user.email,
-            role: user.role
-        },
+        user: new UserDTO(user),
         token: generateToken(user)
         };
     }

@@ -12,7 +12,7 @@ export const enroll = async (req, res, next)=>{
 
         res.status(201).json({
             status: "success",
-            massage: "Incripcion realizada con exito",
+            message: "Incripcion realizada con exito",
             data: new TicketDTO(ticket)
         })
     }catch(error){
@@ -23,10 +23,10 @@ export const enroll = async (req, res, next)=>{
 export const getTicketsFromUser = async(req, res, next)=>{
     try{
         const tickets = await ticketService.getTicketsFromUser(req.user)
-        res.status(201).json({
+        res.status(200).json({
                 status: "success",
-                massage: "Listado de ticket obtenida correctamente",
-                data: tickets
+                message: "Listado de ticket obtenida correctamente",
+                data: tickets.map(t => new TicketDTO(t))
             })
     }catch(error){
         next(error)
@@ -37,10 +37,10 @@ export const getTicketsByEvent = async(req, res, next)=>{
     try {
         const { eid } = req.params
         const tickets = await ticketService.getTicketsByEvent(eid)
-        res.status(201).json({
+        res.status(200).json({
                 status: "success",
-                massage: "Listado de ticket obtenida correctamente",
-                data: tickets
+                message: "Listado de ticket obtenida correctamente",
+                data: tickets.map(t => new TicketDTO(t))
             })
     } catch (error) {
         next(error)
@@ -51,10 +51,10 @@ export const cancelTicket = async(req, res, next)=>{
     try {
         const {tid} = req.params
         const cancelled = await ticketService.cancelTicket(req.user, tid)
-        res.status(201).json({
+        res.status(200).json({
                 status: "success",
-                massage: "Ticket cancelado correctamente",
-                data: cancelled
+                message: "Ticket cancelado correctamente",
+                data: new TicketDTO(cancelled)
             })
     } catch (error) {
         next(error)

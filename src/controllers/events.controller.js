@@ -33,7 +33,7 @@ export const getEventById = async (req, res, next) => {
         const event = await eventService.getEventById(req.params.id);
         res.json({
             status: "success",
-            data: event
+            data: new EventDTO(event)
         });
     } catch (error) {
         next(error);
@@ -50,7 +50,7 @@ export const updateEvent = async (req, res, next) => {
         res.json({
             status: "success",
             message: "Evento actualizado",
-            data: event
+            data: new EventDTO(event)
         });
     } catch (error) {
         next(error);
@@ -75,7 +75,7 @@ export const changeEventStatus = async (req, res, next) => {
         res.json({
             status: "success",
             message: "Estado del evento actualizado",
-            data: event
+            data: new EventDTO(event)
         });
     } catch (error) {
         next(error);
