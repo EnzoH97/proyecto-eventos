@@ -10,7 +10,9 @@ export class TicketDao {
     }
 
     async findById(id){
-        return Ticket.findById(id).populate("event")
+        return Ticket.findById(id)
+        .populate("event")
+        .populate("user", "first_name last_name email")
     }
 
     async findByUser(userId){

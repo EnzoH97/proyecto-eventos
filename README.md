@@ -28,14 +28,15 @@ Sistema backend para la gestión de **eventos de conciertos y recitales**. La pl
 │   ├── config/          # Configuraciones generales (base de datos, variables, etc.)
 │   ├── controllers/     # Lógica de manejo de peticiones y respuestas HTTP
 │   ├── dao/             # Data Access Objects (persistencia de datos)
+│   ├── dto/             # Data Transfer Objects (forma de las respuestas HTTP)
 │   ├── middlewares/     # Middlewares de autenticación, roles y validaciones
 │   ├── models/          # Schemas y modelos de datos
-│   ├── repositories/    # Capa de repositorios para abstraer la persistencia
+│   ├── repository/      # Capa de repositorios para abstraer la persistencia
 │   ├── routes/          # Definición de los endpoints/rutas API
 │   ├── services/        # Lógica de negocio principal
-│   ├── utils/           # Funciones de ayuda (helpers, hash, logger, etc.)
-│   ├── app.js           # Configuración de la aplicación Express
-│   └── server.js        # Punto de entrada y arranque del servidor
+│   └── utils/           # Funciones de ayuda (helpers, hash, etc.)
+├── app.js               # Configuración de la aplicación Express
+├── server.js            # Punto de entrada y arranque del servidor
 ├── .env
 ├── .env.example
 ├── .gitignore
@@ -134,7 +135,7 @@ Si el registro es exitoso, la API responde con un código **201 Created** y un o
 ```json
 {
   "status": "success",
-  "payload": {
+  "data": {
     "id": "...",
     "first_name": "Ana",
     "last_name": "Pérez",
@@ -216,7 +217,7 @@ El cuerpo de la petición debe tener el siguiente formato:
 ```json
 { 
   "status": "success", 
-  "payload": 
+  "data": 
   { 
     "id": "665f2a...", 
     "email": "ana@mail.com", 
@@ -265,7 +266,7 @@ La autenticación se encuentra centralizada mediante estrategias de **Passport.j
 
 ### Estrategias implementadas
 
-- **`register`**: recibe los datos del registro y delega la lógica de negocio en `userService.registerUser()`, donde se realizan las validaciones, normalización del email, control de unicidad, hash de contraseña y asignación del rol `user`.
+- **`register`**: recibe los datos del registro y delega la lógica de negocio en `AuthService.register()`, donde se realizan las validaciones, normalización del email, control de unicidad, hash de contraseña y asignación del rol `user`.
 - **`login`**: valida email y contraseña mediante Passport. Las credenciales inválidas responden con un mensaje genérico.
 - **`current`**: obtiene el JWT desde la cookie `currentUser`, lo valida y deja el usuario autenticado disponible en `req.user`.
 - **`github`**: estrategia de provider externo preparada para autenticación mediante GitHub.
@@ -311,7 +312,7 @@ Una vez creado el evento la API responde con un codigo **201**
 ```json
 { 
   "status": "success", 
-  "payload": { 
+  "data": { 
     "id": "6690...", 
     "name": "Concierto Banda x",
     "date": "2026-10-15T21:00:00-03:00",
@@ -376,7 +377,7 @@ Una vez actualizado el evento la API responde con un codigo **200**
 ```json
 { 
   "status": "success", 
-  "payload": { 
+  "data": { 
     "id": "6690...", 
     "name": "Concierto Banda y",
     "date": "2026-11-15T21:23:00-03:00",
