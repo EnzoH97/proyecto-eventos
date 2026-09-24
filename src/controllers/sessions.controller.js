@@ -1,43 +1,49 @@
-import { AuthService } from "../services/sessions.service.js";
+import passport from "passport";
 import { UserDTO } from "../dto/user.dto.js";
+import { parseDurationToMs } from "../utils/jwt.js";
 
-const authService = new AuthService();
+const cookieOptions = () => ({
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: parseDurationToMs(process.env.JWT_EXPIRES_IN)
+});
 
-export const register = async (req, res, next) => {
-    try {
-        const user = await authService.register(req.body);
-
+export const register = (req, res, next) => {
+    passport.authenticate("register", { session: false }, (err, user, info) => {
+        if (err) return next(err);
+        if (!user) {
+            return res.status(400).json({
+                status: "error",
+                message: info?.message || "No se pudo registrar el usuario"
+            });
+        }
         res.status(201).json({
-        status: "success",
-        message: "Usuario registrado",
-        data: new UserDTO(user)
+            status: "success",
+            message: "Usuario registrado",
+            data: new UserDTO(user)
         });
-    } catch (error) {
-        next(error);
-    }
-    };
+    })(req, res, next);
+};
 
-export const login = async (req, res, next) => {
-    try {
-        const { email, password } = req.body;
-
-        if (!email || !password) {
-        return res.status(400).json({
-            status: "error",
-            message: "email y password son obligatorios"
-        });
+export const login = (req, res, next) => {
+    passport.authenticate("login", { session: false }, (err, result, info) => {
+        if (err) return next(err);
+        if (!result) {
+            return res.status(401).json({
+                status: "error",
+                message: info?.message || "Credenciales inválidas"
+            });
         }
 
-        const result = await authService.login(email, password);
+        res.cookie("currentUser", result.token, cookieOptions());
 
         res.json({
-        status: "success",
-        message: "Login exitoso",
-        ...result
+            status: "success",
+            message: "Login exitoso",
+            data: result.user
         });
-    } catch (error) {
-        next(error);
-    }
+    })(req, res, next);
 };
 
 export const current = async (req, res, next) => {
@@ -53,9 +59,10 @@ export const current = async (req, res, next) => {
 
 export const logout = async (req, res, next) => {
     try {
-        res.json({
+        res.clearCookie("currentUser", cookieOptions());
+        return res.status(200).json({
             status: "success",
-            message: "Sesión cerrada"
+            message: "Logout correcto"
         });
     } catch (error) {
         next(error);

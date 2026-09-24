@@ -21,7 +21,7 @@ export const getEvents = async (req, res, next) => {
         const result = await eventService.getEvents(req.query);
         res.json({
             status: "success",
-            ...result
+            ...result,
             data: result.data.map((event) => new EventDTO(event))
         });
     } catch (error) {

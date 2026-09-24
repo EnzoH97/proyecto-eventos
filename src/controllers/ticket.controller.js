@@ -36,7 +36,7 @@ export const getTicketsFromUser = async(req, res, next)=>{
 export const getTicketsByEvent = async(req, res, next)=>{
     try {
         const { eid } = req.params
-        const tickets = await ticketService.getTicketsByEvent(eid)
+        const tickets = await ticketService.getTicketsByEvent(eid, req.user)
         res.status(200).json({
                 status: "success",
                 message: "Listado de ticket obtenida correctamente",
