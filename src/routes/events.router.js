@@ -4,6 +4,8 @@ import {createEvent, getEvents, getEventById, updateEvent, changeEventStatus} fr
 import { authenticateJWT } from "../middlewares/auth.middleware.js";
 import { authorizeRoles } from "../middlewares/authorization.middleware.js";
 
+import { enroll, getTicketsByEvent } from "../controllers/ticket.controller.js";
+
 const router = Router();
 
 
@@ -12,10 +14,11 @@ router.get("/:id", getEventById);
 
 
 router.post("/", authenticateJWT, authorizeRoles("organizer", "admin"), createEvent);
-
-
 router.put("/:id", authenticateJWT, authorizeRoles("organizer", "admin"), updateEvent);
-
 router.patch("/:id/status", authenticateJWT, authorizeRoles("organizer", "admin"), changeEventStatus);
+
+
+router.post("/:eid/tickets", authenticateJWT, enroll);
+router.get("/:eid/tickets", authenticateJWT,authorizeRoles("organizer", "admin"), getTicketsByEvent);
 
 export default router;
