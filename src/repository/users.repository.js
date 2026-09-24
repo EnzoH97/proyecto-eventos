@@ -9,6 +9,10 @@ export class UserRepository {
         return this.dao.findByEmail(email);
     }
 
+    findById(id) {
+    return this.dao.findById(id);
+}
+
     create(data) {
         return this.dao.create(data);
     }
