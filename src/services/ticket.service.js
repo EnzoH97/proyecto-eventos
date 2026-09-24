@@ -16,7 +16,7 @@ export class TicketService {
 
     validateObjectId(id) {
         if (!mongoose.isValidObjectId(id)) {
-            throw businessError("ID de Ticket inválido", 400);
+            throw businessError("ID de ticket inválido", 400);
         }
     }
 
@@ -38,17 +38,17 @@ export class TicketService {
         }
 
         if(event.status !== "published"){
-            throw businessError("El evento no esta disponible para anotarse", 400);
+            throw businessError("El evento no está disponible para anotarse", 400);
         }
 
         if(event.date < new Date()){
-            throw businessError("El evento ya finalizo", 400);
+            throw businessError("El evento ya finalizó", 400);
         }
 
         const existingTicket = await this.ticketRepository.findByUserAndEvent(user._id, event._id, "confirmed");
 
         if(existingTicket){
-            throw businessError("El ususario ya se encuentra anotado en el evento", 409);
+            throw businessError("El usuario ya se encuentra anotado en el evento", 409);
         }
 
         const reservedtEvent = await this.eventRepository.reserveSeats(event._id, seats);
@@ -79,6 +79,20 @@ export class TicketService {
 
     async getTicketsByEvent(eventId){
         this.validateObjectId(eventId)
+        
+        const event = await this.eventRepository.findById(eventId)
+        
+        if(!event){
+            throw businessError("Evento no encontrado", 404);
+        }
+        
+        const isAdmin = user.role === "admin";
+        const organizerId = event.organizer?._id || event.organizer;
+        const isOwner = organizerId.toString() === user._id.toString();
+
+        if(!isAdmin && !isOwner){
+            throw businessError("No tenés permisos para ver los tickets de este evento", 403);
+        }
         return this.ticketRepository.findByEvent(eventId)
     }
 
@@ -96,7 +110,7 @@ export class TicketService {
         const isOwner = ticketUserId === user._id.toString();
 
         if(!isAdmin && !isOwner){
-            throw businessError("no tenes permisos para cancelar este ticket", 403);
+            throw businessError("No tenés permisos para cancelar este ticket", 403);
         }
 
         if(existantTicket.status === "cancelled"){

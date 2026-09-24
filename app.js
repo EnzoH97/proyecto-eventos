@@ -1,4 +1,5 @@
 import express from "express";
+import cookieParser from "cookie-parser";
 import passport from "./src/config/passport.config.js";
 
 import eventsRouter from "./src/routes/events.router.js";
@@ -11,6 +12,7 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 app.use(passport.initialize());
 
