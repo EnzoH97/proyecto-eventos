@@ -18,7 +18,7 @@ export class EventService {
 
     validateCapacityAndPrice(data) {
         if (data.capacity !== undefined && Number(data.capacity) <= 0) {
-            throw businessError("La capacidad debe ser mayor que 0");
+            throw businessError("La cantidad de lugares debe ser mayor a 0");
         }
         if (data.price !== undefined && Number(data.price) < 0) {
             throw businessError("El precio no puede ser negativo");

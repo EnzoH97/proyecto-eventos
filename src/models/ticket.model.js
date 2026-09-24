@@ -18,7 +18,7 @@ const ticketSchema = new mongoose.Schema({
     },
     quantity:{
         type: Number,
-        default:1,
+        default: 1,
         min: 1
     },
     reservationCode:{
@@ -28,7 +28,7 @@ const ticketSchema = new mongoose.Schema({
     },
     cancelledAt: {
         type: Date,
-        defaul: null
+        default: null
     }
 },
 {
